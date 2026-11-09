@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Soft Script HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#35312d;--muted:#8a8178;--line:rgba(120,105,90,.18);--bg:#f6f2ec;--glass:rgba(255,253,250,.62);
+--accent:#7d6f60;--ok:#5d7a62;--warn:#a07a3c;--bad:#a2584f;--r:20px}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:'IBM Plex Sans Arabic',system-ui,-apple-system,sans-serif;color:var(--ink);line-height:1.7;
+background:radial-gradient(60% 50% at 85% 0,#ece6f1 0,transparent 70%),radial-gradient(50% 40% at 0 100%,#f3e5de 0,transparent 70%),var(--bg);
+background-attachment:fixed;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+[hidden]{display:none!important}
+.glass{background:var(--glass);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border:1px solid rgba(255,255,255,.7);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 8px 30px rgba(90,70,50,.07)}
+.card{border-radius:var(--r);padding:24px}
+.center{min-height:100vh;display:grid;place-items:center;padding:16px}
+.auth{width:min(420px,100%);display:grid;gap:14px}
+h1{font-size:1.6rem;margin:0;font-weight:600}h2{font-size:1.3rem;margin:0 0 4px;font-weight:600}h3{font-size:1rem;margin:0 0 10px;font-weight:600}
+.muted{color:var(--muted);margin:0}
+.orb{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 28%,#fff,#efe7f3 45%,#e6d6cc 80%);box-shadow:0 4px 18px rgba(125,111,96,.25)}
+.orb.sm{width:26px;height:26px;display:inline-block;vertical-align:middle;margin-inline-end:8px}
+label{display:grid;gap:6px;font-size:.9rem;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);padding:11px 13px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.8);min-height:44px;width:100%}
+input:focus,select:focus,textarea:focus,.btn:focus-visible,nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;border:1px solid var(--line);background:rgba(255,255,255,.75);color:var(--ink);padding:10px 18px;border-radius:999px;min-height:44px;cursor:pointer}
+.btn.primary{background:var(--ink);color:#faf7f2;border-color:var(--ink)}.btn.ghost{background:transparent}
+#app{display:grid;grid-template-columns:240px 1fr;gap:16px;padding:16px;min-height:100vh}
+.side{border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;height:calc(100vh - 32px)}
+.brand{font-weight:600;font-size:1.05rem}
+nav{display:grid;gap:4px;flex:1;align-content:start}
+nav a{padding:11px 14px;border-radius:14px;color:var(--ink);text-decoration:none}
+nav a.on{background:rgba(255,255,255,.85);box-shadow:0 2px 10px rgba(90,70,50,.08);font-weight:500}
+.view{display:grid;gap:16px;align-content:start;min-width:0}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.stat b{display:block;font-size:2rem;font-weight:600;line-height:1.2}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{text-align:start;padding:12px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:500}
+td select{min-height:36px;padding:6px 10px;width:auto}
+.badge{display:inline-block;padding:2px 12px;border-radius:999px;font-size:.8rem;background:rgba(125,111,96,.12);color:var(--accent)}
+.badge.ok{background:rgba(93,122,98,.14);color:var(--ok)}.badge.warn{background:rgba(160,122,60,.15);color:var(--warn)}.badge.bad{background:rgba(162,88,79,.14);color:var(--bad)}
+.empty{text-align:center;padding:32px 12px;color:var(--muted)}
+.chat{display:grid;grid-template-columns:1fr 300px;gap:14px}
+.msgs{display:grid;gap:10px;align-content:start;max-height:55vh;overflow:auto;padding:4px}
+.msg{padding:10px 14px;border-radius:16px;max-width:85%;background:rgba(255,255,255,.8);justify-self:start;white-space:pre-wrap}
+.msg.user{background:var(--ink);color:#faf7f2;justify-self:end}.msg.system{background:rgba(160,122,60,.12);color:var(--warn);justify-self:center;font-size:.9rem}
+.send{display:flex;gap:8px;margin-top:12px}
+.appr{padding:10px 0;border-bottom:1px solid var(--line);display:grid;gap:8px}.appr .row{display:flex;gap:8px}
+dialog{border-radius:var(--r);padding:24px;width:min(460px,92vw);color:var(--ink)}dialog::backdrop{background:rgba(60,50,40,.25);backdrop-filter:blur(4px)}
+dialog form{display:grid;gap:12px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#faf7f2;padding:10px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#toast.show{opacity:1}
+@media(max-width:900px){.chat{grid-template-columns:1fr}}
+@media(max-width:760px){
+#app{grid-template-columns:1fr;padding:10px 10px 84px}
+.side{position:fixed;inset:auto 8px calc(8px + env(safe-area-inset-bottom)) 8px;height:auto;flex-direction:row;padding:6px;border-radius:24px;z-index:5}
+.side .brand,.side>.btn{display:none}
+nav{display:flex;overflow-x:auto;gap:2px}nav a{white-space:nowrap;padding:10px 12px;font-size:.85rem}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+</head>
+<body>
+<main id="auth" class="center" hidden>
+  <form id="authForm" class="glass card auth">
+    <div class="orb"></div>
+    <h1>Soft Script HQ</h1>
+    <p class="muted" id="authNote">سجّلي الدخول للمتابعة.</p>
+    <label>البريد الإلكتروني<input name="email" type="email" required autocomplete="email"></label>
+    <label>كلمة المرور<input name="password" type="password" required minlength="8" autocomplete="current-password"></label>
+    <button class="btn primary" data-mode="in">تسجيل الدخول</button>
+    <button class="btn ghost" type="button" id="signUp">إنشاء حساب جديد</button>
+    <button class="btn" type="button" id="demo" hidden>معاينة التصميم (بيانات تجريبية)</button>
+  </form>
+</main>
+
+<main id="pending" class="center" hidden>
+  <div class="glass card auth">
+    <h2>حسابك بانتظار التفعيل</h2>
+    <p class="muted">تم إنشاء الحساب، لكن لا يمكن الوصول للبيانات حتى يمنحك المدير صلاحية. راجعي خطوة التفعيل في README.</p>
+    <button class="btn ghost" data-act="logout">تسجيل الخروج</button>
+  </div>
+</main>
+
+<div id="app" hidden>
+  <aside class="side glass">
+    <div class="brand"><span class="orb sm"></span>Soft Script HQ</div>
+    <nav id="nav"></nav>
+    <button class="btn ghost" data-act="logout">تسجيل الخروج</button>
+  </aside>
+  <section id="view" class="view" aria-live="polite"></section>
+</div>
+
+<dialog id="dlg" class="glass"><form id="dlgForm" method="dialog"></form></dialog>
+<div id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ضعي هنا Project URL و anon key من Supabase للربط الحقيقي (لا تضعي service_role أبدًا)
+window.SSHQ_CONFIG = { SUPABASE_URL: "https://qlpitrdforeriboitdhh.supabase.co", SUPABASE_ANON_KEY: "sb_publishable_X4yl8v8r-Pa41x-oCFLHhA_2Ckx1GXX" };
+</script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cfg = window.SSHQ_CONFIG || {};
+const configured = /^https:\/\/.+\.supabase\.co/.test(cfg.SUPABASE_URL || '') && cfg.SUPABASE_ANON_KEY && !/YOUR/.test(cfg.SUPABASE_ANON_KEY);
+let sb = configured ? supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
+
+const STAGES = [['discovery','استكشاف'],['design','تصميم'],['build','تطوير'],['review','مراجعة'],['security','فحص أمني'],['delivered','تسليم']];
+const TSTAT = [['todo','بانتظار البدء'],['doing','قيد التنفيذ'],['review','مراجعة'],['done','مكتملة']];
+const SEV = [['low','منخفضة'],['medium','متوسطة'],['high','عالية'],['critical','حرجة']];
+const label = (list, v) => (list.find(x => x[0] === v) || [, v])[1];
+const NAV = [['dashboard','Dashboard'],['bella','Bella AI'],['projects','Projects'],['clients','Clients'],['workforce','AI Workforce'],['tasks','Tasks'],['security','Security Center'],['settings','Settings']];
+
+// تعريف الجداول العامة: الأعمدة، النموذج، والحقول القابلة للتعديل المباشر
+const T = {
+  clients: { title:'العملاء', add:'عميل جديد', sel:'*',
+    cols:[['name','الاسم'],['company','الشركة'],['email','البريد'],['phone','الهاتف']],
+    form:[['name','الاسم','text',1],['company','الشركة'],['email','البريد','email'],['phone','الهاتف','tel'],['notes','ملاحظات','textarea']] },
+  projects: { title:'المشاريع', add:'مشروع جديد', sel:'*, clients(name)',
+    cols:[['name','المشروع'],['clients','العميل',r=>esc(r.clients?.name||'—')],['stage','المرحلة',r=>pick(r,'stage',STAGES)],['due_date','التسليم']],
+    form:[['name','اسم المشروع','text',1],['client_id','العميل','select:clients:name'],['stage','المرحلة',STAGES],['due_date','تاريخ التسليم','date']] },
+  tasks: { title:'المهام', add:'مهمة جديدة', sel:'*, projects(name), ai_agents(name)',
+    cols:[['title','المهمة'],['projects','المشروع',r=>esc(r.projects?.name||'—')],['ai_agents','المنفّذ',r=>esc(r.ai_agents?.name||'—')],['status','الحالة',r=>pick(r,'status',TSTAT)]],
+    form:[['title','عنوان المهمة','text',1],['project_id','المشروع','select:projects:name'],['agent_id','المنفّذ','select:ai_agents:name'],['status','الحالة',TSTAT],['due_date','الموعد','date']] },
+  security_reports: { title:'تقارير الأمان', add:'تسجيل تقرير يدوي', sel:'*, projects(name)',
+    cols:[['title','العنوان'],['projects','المشروع',r=>esc(r.projects?.name||'—')],['severity','الخطورة',r=>`<span class="badge ${r.severity==='low'?'ok':r.severity==='medium'?'warn':'bad'}">${label(SEV,r.severity)}</span>`],['source','المصدر']],
+    form:[['title','العنوان','text',1],['project_id','المشروع','select:projects:name'],['severity','الخطورة',SEV],['summary','الملخص','textarea']] }
+};
+const pick = (r, f, list) => `<select data-upd="${f}" data-id="${r.id}">${list.map(([v,l])=>`<option value="${v}"${r[f]===v?' selected':''}>${l}</option>`).join('')}</select>`;
+
+let user = null, profile = null, route = 'dashboard';
+
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+const errBox = e => `<div class="glass card empty">تعذّر تحميل البيانات: ${esc(e.message)}<br>تأكدي من تنفيذ schema.sql وتفعيل صلاحيتك.</div>`;
+const show = id => ['auth','pending','app'].forEach(x => $('#'+x).hidden = x !== id);
+
+/* ---------- المصادقة ---------- */
+async function init() {
+  if (!sb) { show('auth'); $('#authNote').textContent = 'الربط غير مُعدّ بعد. يمكنك معاينة التصميم ببيانات تجريبية.'; document.querySelectorAll('#authForm .primary,#signUp').forEach(b=>b.disabled=true); $('#demo').hidden=false; return; }
+  const { data } = await sb.auth.getSession();
+  sb.auth.onAuthStateChange((_e, s) => { if ((s?.user?.id||null) !== (user?.id||null)) boot(s?.user || null); });
+  boot(data.session?.user || null);
+}
+async function boot(u) {
+  user = u;
+  if (!u) { show('auth'); return; }
+  const { data, error } = await sb.from('profiles').select('*').eq('id', u.id).maybeSingle();
+  profile = data;
+  if (error || !data || data.role === 'pending') { show('pending'); return; }
+  show('app'); drawNav(); go();
+}
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault(); const f = new FormData(e.target);
+  const { error } = await sb.auth.signInWithPassword({ email: f.get('email'), password: f.get('password') });
+  if (error) toast('فشل الدخول: ' + error.message);
+});
+$('#signUp').addEventListener('click', async () => {
+  const f = new FormData($('#authForm'));
+  if (!f.get('email') || (f.get('password')||'').length < 8) return toast('أدخلي بريدًا وكلمة مرور (8 أحرف على الأقل).');
+  const { error } = await sb.auth.signUp({ email: f.get('email'), password: f.get('password') });
+  toast(error ? error.message : 'تم إنشاء الحساب. قد تحتاجين لتأكيد البريد ثم تفعيل الصلاحية من المدير.');
+});
+
+/* ---------- التنقل ---------- */
+function drawNav() { $('#nav').innerHTML = NAV.map(([id,l]) => `<a href="#${id}" data-r="${id}">${l}</a>`).join(''); }
+function go() {
+  route = location.hash.slice(1); if (!NAV.some(n => n[0] === route)) route = 'dashboard';
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.r === route));
+  const fn = VIEWS[route]; $('#view').innerHTML = '<p class="muted">جارٍ التحميل…</p>';
+  fn().then(h => $('#view').innerHTML = (DEMO ? '<div class="glass card" style="padding:12px 18px"><span class="badge warn">وضع المعاينة</span> بيانات تجريبية في الذاكرة فقط، لا تُحفظ ولا ترتبط بـ Supabase.</div>' : '') + h).catch(e => $('#view').innerHTML = errBox(e));
+}
+addEventListener('hashchange', () => user && profile && go());
+
+/* ---------- العروض ---------- */
+const head = (t, sub, btn) => `<div class="head"><div><h2>${t}</h2><p class="muted">${sub||''}</p></div>${btn||''}</div>`;
+const table = (cols, rows, empty) => rows.length
+  ? `<div class="glass card tablewrap"><table><thead><tr>${cols.map(c=>`<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${c[2]?c[2](r):esc(r[c[0]]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
+  : `<div class="glass card empty">${empty}</div>`;
+
+async function listView(k, sub) {
+  const d = T[k];
+  const { data, error } = await sb.from(k).select(d.sel).order('created_at', { ascending:false });
+  if (error) return errBox(error);
+  return head(d.title, sub, `<button class="btn primary" data-add="${k}">${d.add}</button>`) + table(d.cols, data, 'لا توجد سجلات بعد. ابدئي بإضافة أول سجل.');
+}
+const count = async t => (await sb.from(t).select('id',{count:'exact',head:true})).count ?? '—';
+
+const VIEWS = {
+  async dashboard() {
+    const [c,p,t,a] = await Promise.all([count('clients'),count('projects'),
+      sb.from('tasks').select('id',{count:'exact',head:true}).neq('status','done').then(r=>r.count??'—'),
+      sb.from('approvals').select('id',{count:'exact',head:true}).eq('status','pending').then(r=>r.count??'—')]);
+    const s = (n,l,h) => `<a class="glass card stat" href="#${h}" style="text-decoration:none;color:inherit"><b>${n}</b>${l}</a>`;
+    return head('مرحبًا بك في Soft Script HQ','ملخص حيّ من قاعدة البيانات.') +
+      `<div class="grid">${s(p,'مشاريع','projects')}${s(c,'عملاء','clients')}${s(t,'مهام مفتوحة','tasks')}${s(a,'موافقات بانتظارك','bella')}</div>` +
+      `<div class="glass card"><h3>حالة النظام</h3><p class="muted">جاهز: المصادقة، العملاء، المشاريع، المهام، الموافقات، المحادثات المحفوظة.<br>قيد التطوير: ردود Bella الذكية، OpenAI، Claude، GitHub، n8n، الفحص الأمني الآلي.</p></div>`;
+  },
+  async bella() {
+    let { data: conv } = await sb.from('conversations').select('*').eq('owner_id', user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    if (!conv) ({ data: conv } = await sb.from('conversations').insert({ title:'Bella' }).select().single());
+    const [{ data: msgs }, { data: appr }] = await Promise.all([
+      sb.from('messages').select('*').eq('conversation_id', conv.id).order('created_at').limit(200),
+      sb.from('approvals').select('*').eq('status','pending').order('created_at')]);
+    VIEWS._conv = conv.id;
+    const m = (msgs||[]).map(x=>`<div class="msg ${x.role}">${esc(x.content)}</div>`).join('') || '<p class="empty">ابدئي المحادثة. الرسائل تُحفظ في Supabase.</p>';
+    const ap = (appr||[]).map(a=>`<div class="appr"><b>${esc(a.title)}</b><span class="muted">${esc(a.details||'')}</span><div class="row"><button class="btn primary" data-appr="approved" data-id="${a.id}">موافقة</button><button class="btn" data-appr="rejected" data-id="${a.id}">رفض</button></div></div>`).join('') || '<p class="muted">لا توجد موافقات معلّقة. أي رسالة موجّهة لعميل تمر من هنا قبل إرسالها.</p>';
+    return head('Bella AI','واجهتك المركزية مع الفريق.') +
+      `<div class="chat"><div class="glass card"><div class="msgs" id="msgs">${m}</div>
+      <form class="send" id="chatForm"><input name="t" placeholder="اكتبي رسالتك لـ Bella" required autocomplete="off"><button class="btn primary">إرسال</button></form></div>
+      <div class="glass card"><h3>الموافقات</h3>${ap}</div></div>`;
+  },
+  projects: () => listView('projects', 'مراحل التنفيذ لكل مشروع. غيّري المرحلة مباشرة من الجدول.'),
+  clients: () => listView('clients', 'بيانات العملاء. التواصل معهم يتم عبر مديرة الشركة فقط.'),
+  tasks: () => listView('tasks', 'حالة إنجاز المهام.'),
+  async workforce() {
+    const { data, error } = await sb.from('ai_agents').select('*').order('created_at');
+    if (error) return errBox(error);
+    const st = { not_connected:['غير مربوط','warn'], active:['نشط','ok'], paused:['متوقف','bad'] };
+    return head('AI Workforce','أدوات الفريق وأدوارها. الأدوات لا تتواصل مع العملاء مباشرة؛ كل مخرجاتها تمر عبر Bella وموافقتك.') +
+      table([['name','الاسم'],['provider','المزوّد'],['role','الدور'],['status','الحالة',r=>`<span class="badge ${st[r.status][1]}">${st[r.status][0]}</span>`]], data, 'لا يوجد أعضاء.');
+  },
+  async security() {
+    const v = await listView('security_reports', 'سجّلي نتائج الفحص هنا يدويًا حاليًا.');
+    return v + `<div class="glass card"><p class="muted">الفحص الآلي (GitHub / أدوات الأمان) قيد التطوير ولم يُربط بعد.</p></div>`;
+  },
+  async settings() {
+    const { data } = await sb.from('integrations').select('*');
+    return head('Settings','إعدادات النظام وحالة الربط.') +
+      `<div class="glass card"><h3>الحساب</h3><p class="muted">${esc(user.email)} — الصلاحية: ${esc(profile.role)}</p>
+       <p><button class="btn" id="testConn">اختبار اتصال Supabase</button> <span id="connRes" class="muted"></span></p></div>` +
+      table([['provider','التكامل'],['status','الحالة',r=>`<span class="badge warn">${r.status==='not_connected'?'غير مربوط':esc(r.status)}</span>`],['note','ملاحظة']], data||[], 'لا توجد تكاملات.') +
+      `<div class="glass card"><p class="muted">مفاتيح OpenAI وClaude وGitHub وn8n لا تُدخل هنا أبدًا؛ تُحفظ كـ Secrets في Edge Functions عند تطوير الربط.</p></div>`;
+  }
+};
+
+/* ---------- نموذج الإضافة ---------- */
+async function openForm(k) {
+  const d = T[k]; let html = `<h2>${d.add}</h2>`;
+  for (const [n,l,type,req] of d.form) {
+    let inp;
+    if (Array.isArray(type)) inp = `<select name="${n}">${type.map(([v,t])=>`<option value="${v}">${t}</option>`).join('')}</select>`;
+    else if (typeof type==='string' && type.startsWith('select:')) {
+      const [, tbl, col] = type.split(':'); const { data } = await sb.from(tbl).select('id,'+col).order(col);
+      inp = `<select name="${n}"><option value="">— بدون —</option>${(data||[]).map(o=>`<option value="${o.id}">${esc(o[col])}</option>`).join('')}</select>`;
+    } else if (type==='textarea') inp = `<textarea name="${n}" rows="3"></textarea>`;
+    else inp = `<input name="${n}" type="${type||'text'}"${req?' required':''}>`;
+    html += `<label>${l}${inp}</label>`;
+  }
+  $('#dlgForm').innerHTML = html + `<div class="head"><button class="btn primary" value="ok">حفظ</button><button class="btn ghost" value="cancel" formnovalidate>إلغاء</button></div>`;
+  $('#dlgForm').dataset.k = k; $('#dlg').showModal();
+}
+$('#dlgForm').addEventListener('submit', async e => {
+  if (e.submitter?.value !== 'ok') return;
+  const k = e.target.dataset.k; const row = {};
+  new FormData(e.target).forEach((v,n) => row[n] = v === '' ? null : v);
+  const { error } = await sb.from(k).insert(row);
+  toast(error ? 'تعذّر الحفظ: ' + error.message : 'تم الحفظ'); if (!error) go();
+});
+
+/* ---------- الأحداث العامة ---------- */
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-add],[data-act],[data-appr],#testConn'); if (!b) return;
+  if (b.dataset.add) openForm(b.dataset.add);
+  else if (b.dataset.act === 'logout') { if (DEMO) location.reload(); else await sb.auth.signOut(); }
+  else if (b.dataset.appr) {
+    const { error } = await sb.from('approvals').update({ status:b.dataset.appr, decided_by:user.id, decided_at:new Date().toISOString() }).eq('id', b.dataset.id);
+    toast(error ? error.message : 'تم تسجيل القرار'); go();
+  } else if (b.id === 'testConn') {
+    const r = await sb.from('profiles').select('id').limit(1);
+    $('#connRes').textContent = r.error ? '❌ ' + r.error.message : '✅ الاتصال يعمل والقراءة مسموحة';
+  }
+});
+document.addEventListener('change', async e => {
+  const s = e.target.closest('[data-upd]'); if (!s) return;
+  const { error } = await sb.from(route).update({ [s.dataset.upd]: s.value }).eq('id', s.dataset.id);
+  toast(error ? error.message : 'تم التحديث');
+});
+document.addEventListener('submit', async e => {
+  if (e.target.id !== 'chatForm') return; e.preventDefault();
+  const t = new FormData(e.target).get('t').trim(); if (!t) return;
+  const c = VIEWS._conv;
+  const r = await sb.from('messages').insert([{ conversation_id:c, role:'user', content:t },
+    { conversation_id:c, role:'system', content:'تم حفظ رسالتك. Bella غير مربوطة بنموذج ذكاء اصطناعي بعد (قيد التطوير)، لذلك لا ردود ولا تنفيذ حاليًا.' }]);
+  if (r.error) toast(r.error.message); else go();
+});
+
+/* ---------- وضع المعاينة: قاعدة بيانات وهمية في الذاكرة ---------- */
+let DEMO = false;
+function mockSb() {
+  const d = (n) => new Date(Date.now() - n * 864e5).toISOString();
+  const db = {
+    profiles: [{ id:'demo', role:'admin' }],
+    clients: [{id:'c1',name:'نورة العتيبي',company:'مطاعم رواق',email:'noura@rawaq.example',phone:'0500000001',created_at:d(5)},{id:'c2',name:'خالد السبيعي',company:'عيادات سَكينة',email:'khalid@sakina.example',phone:'0500000002',created_at:d(3)}],
+    projects: [{id:'p1',name:'متجر رواق الإلكتروني',client_id:'c1',stage:'build',due_date:'2026-12-15',created_at:d(4)},{id:'p2',name:'نظام حجوزات سَكينة',client_id:'c2',stage:'design',due_date:'2027-01-20',created_at:d(2)}],
+    ai_agents: [{id:'a1',name:'Bella',provider:'claude',role:'مساعدة المديرة والواجهة المركزية',status:'not_connected',created_at:d(9)},{id:'a2',name:'Builder',provider:'openai',role:'تنفيذ الكود',status:'not_connected',created_at:d(8)},{id:'a3',name:'Reviewer',provider:'claude',role:'مراجعة الكود',status:'not_connected',created_at:d(7)},{id:'a4',name:'Automator',provider:'n8n',role:'أتمتة سير العمل',status:'not_connected',created_at:d(6)}],
+    tasks: [{id:'t1',title:'بناء صفحة السلة',project_id:'p1',agent_id:'a2',status:'doing',created_at:d(3)},{id:'t2',title:'مراجعة تصميم الحجز',project_id:'p2',agent_id:'a3',status:'todo',created_at:d(1)},{id:'t3',title:'ربط بوابة الدفع',project_id:'p1',agent_id:'a2',status:'review',created_at:d(2)}],
+    approvals: [{id:'ap1',title:'إرسال تحديث التقدم إلى نورة',details:'مسودة رسالة أعدّتها Bella تنتظر موافقتك قبل الإرسال.',status:'pending',created_at:d(1)}],
+    security_reports: [{id:'s1',title:'مراجعة رؤوس الأمان',project_id:'p1',severity:'low',source:'manual',created_at:d(2)}],
+    integrations: [['openai','قيد التطوير: يتطلب Edge Function'],['claude','قيد التطوير: يتطلب Edge Function'],['github','قيد التطوير'],['n8n','قيد التطوير: Webhook موقّع']].map(([provider,note])=>({provider,status:'not_connected',note})),
+    conversations: [], messages: []
+  };
+  const J = { projects:{clients:['client_id','clients']}, tasks:{projects:['project_id','projects'],ai_agents:['agent_id','ai_agents']}, security_reports:{projects:['project_id','projects']} };
+  let n = 1;
+  const from = t => {
+    let f = [], op = 'sel', pay = null, one = false, head = false, ord = null, lim = null;
+    const q = {
+      select(_c, o) { if (op === 'sel') head = !!o?.head; return q; },
+      insert(p) { op = 'ins'; pay = p; return q; }, update(p) { op = 'upd'; pay = p; return q; },
+      eq(c, v) { f.push(r => r[c] === v); return q; }, neq(c, v) { f.push(r => r[c] !== v); return q; },
+      order(c, o) { ord = [c, o?.ascending !== false]; return q; }, limit(x) { lim = x; return q; },
+      single() { one = true; return q; }, maybeSingle() { one = true; return q; },
+      then(res, rej) {
+        let out;
+        if (op === 'ins') {
+          const rows = [].concat(pay).map(r => ({ id:'m'+n++, created_at:new Date().toISOString(), ...(t==='conversations'?{owner_id:'demo'}:{}), ...r }));
+          db[t].push(...rows); out = { data: one ? rows[0] : rows, error: null };
+        } else if (op === 'upd') {
+          db[t].filter(r => f.every(x => x(r))).forEach(r => Object.assign(r, pay)); out = { data: null, error: null };
+        } else {
+          let rows = db[t].filter(r => f.every(x => x(r)));
+          if (ord) rows = [...rows].sort((a,b) => (String(a[ord[0]]) > String(b[ord[0]]) ? 1 : -1) * (ord[1] ? 1 : -1));
+          if (lim) rows = rows.slice(0, lim);
+          rows = rows.map(r => { const c = {...r}; for (const [k,[fk,tt]] of Object.entries(J[t]||{})) c[k] = db[tt].find(x => x.id === r[fk]) || null; return c; });
+          out = head ? { count: rows.length, error: null } : { data: one ? (rows[0] || null) : rows, error: null };
+        }
+        return Promise.resolve(out).then(res, rej);
+      }
+    };
+    return q;
+  };
+  return { from, auth: { signOut: async () => {} } };
+}
+$('#demo').addEventListener('click', () => { DEMO = true; sb = mockSb(); user = { id:'demo', email:'preview@softscript.local' }; boot(user); });
+
+init();
+
+</script>
+</body>
+</html>
