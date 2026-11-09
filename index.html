@@ -75,6 +75,7 @@ nav{display:flex;overflow-x:auto;gap:2px}nav a{white-space:nowrap;padding:10px 1
     <label>كلمة المرور<input name="password" type="password" required minlength="8" autocomplete="current-password"></label>
     <button class="btn primary" data-mode="in">تسجيل الدخول</button>
     <button class="btn ghost" type="button" id="signUp">إنشاء حساب جديد</button>
+    <button class="btn ghost" type="button" id="forgot">نسيت كلمة المرور</button>
     <button class="btn" type="button" id="demo" hidden>معاينة التصميم (بيانات تجريبية)</button>
   </form>
 </main>
@@ -135,7 +136,9 @@ const T = {
 };
 const pick = (r, f, list) => `<select data-upd="${f}" data-id="${r.id}">${list.map(([v,l])=>`<option value="${v}"${r[f]===v?' selected':''}>${l}</option>`).join('')}</select>`;
 
-let user = null, profile = null, route = 'dashboard';
+let user = null, profile = null, route = 'dashboard', recovery = false;
+const CACHE = {};
+const act = (k, id) => `<button class="btn" style="min-height:36px;padding:6px 14px" data-edit="${k}" data-id="${id}">تعديل</button> <button class="btn ghost" style="min-height:36px;padding:6px 14px" data-del="${k}" data-id="${id}">حذف</button>`;
 
 function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
 const errBox = e => `<div class="glass card empty">تعذّر تحميل البيانات: ${esc(e.message)}<br>تأكدي من تنفيذ schema.sql وتفعيل صلاحيتك.</div>`;
@@ -143,9 +146,9 @@ const show = id => ['auth','pending','app'].forEach(x => $('#'+x).hidden = x !==
 
 /* ---------- المصادقة ---------- */
 async function init() {
-  if (!sb) { show('auth'); $('#authNote').textContent = 'الربط غير مُعدّ بعد. يمكنك معاينة التصميم ببيانات تجريبية.'; document.querySelectorAll('#authForm .primary,#signUp').forEach(b=>b.disabled=true); $('#demo').hidden=false; return; }
+  if (!sb) { show('auth'); $('#authNote').textContent = 'الربط غير مُعدّ بعد. يمكنك معاينة التصميم ببيانات تجريبية.'; document.querySelectorAll('#authForm .primary,#signUp,#forgot').forEach(b=>b.disabled=true); $('#demo').hidden=false; return; }
   const { data } = await sb.auth.getSession();
-  sb.auth.onAuthStateChange((_e, s) => { if ((s?.user?.id||null) !== (user?.id||null)) boot(s?.user || null); });
+  sb.auth.onAuthStateChange((_e, s) => { if (_e === 'PASSWORD_RECOVERY') recovery = true; if ((s?.user?.id||null) !== (user?.id||null)) boot(s?.user || null).then(() => { if (recovery) { recovery = false; openPw(); } }); });
   boot(data.session?.user || null);
 }
 async function boot(u) {
@@ -168,6 +171,13 @@ $('#signUp').addEventListener('click', async () => {
   toast(error ? error.message : 'تم إنشاء الحساب. قد تحتاجين لتأكيد البريد ثم تفعيل الصلاحية من المدير.');
 });
 
+$('#forgot').addEventListener('click', async () => {
+  const email = new FormData($('#authForm')).get('email');
+  if (!email) return toast('اكتبي بريدك أولًا ثم اضغطي «نسيت كلمة المرور».');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  toast(error ? error.message : 'أُرسل رابط الاسترجاع إلى بريدك.');
+});
+
 /* ---------- التنقل ---------- */
 function drawNav() { $('#nav').innerHTML = NAV.map(([id,l]) => `<a href="#${id}" data-r="${id}">${l}</a>`).join(''); }
 function go() {
@@ -188,7 +198,8 @@ async function listView(k, sub) {
   const d = T[k];
   const { data, error } = await sb.from(k).select(d.sel).order('created_at', { ascending:false });
   if (error) return errBox(error);
-  return head(d.title, sub, `<button class="btn primary" data-add="${k}">${d.add}</button>`) + table(d.cols, data, 'لا توجد سجلات بعد. ابدئي بإضافة أول سجل.');
+  CACHE[k] = data;
+  return head(d.title, sub, `<button class="btn primary" data-add="${k}">${d.add}</button>`) + table([...d.cols, ['', '', r => act(k, r.id)]], data, 'لا توجد سجلات بعد. ابدئي بإضافة أول سجل.');
 }
 const count = async t => (await sb.from(t).select('id',{count:'exact',head:true})).count ?? '—';
 
@@ -234,15 +245,15 @@ const VIEWS = {
     const { data } = await sb.from('integrations').select('*');
     return head('Settings','إعدادات النظام وحالة الربط.') +
       `<div class="glass card"><h3>الحساب</h3><p class="muted">${esc(user.email)} — الصلاحية: ${esc(profile.role)}</p>
-       <p><button class="btn" id="testConn">اختبار اتصال Supabase</button> <span id="connRes" class="muted"></span></p></div>` +
+       <p><button class="btn" id="testConn">اختبار اتصال Supabase</button> <span id="connRes" class="muted"></span></p><p><button class="btn" id="chgPw">تغيير كلمة المرور</button></p></div>` +
       table([['provider','التكامل'],['status','الحالة',r=>`<span class="badge warn">${r.status==='not_connected'?'غير مربوط':esc(r.status)}</span>`],['note','ملاحظة']], data||[], 'لا توجد تكاملات.') +
       `<div class="glass card"><p class="muted">مفاتيح OpenAI وClaude وGitHub وn8n لا تُدخل هنا أبدًا؛ تُحفظ كـ Secrets في Edge Functions عند تطوير الربط.</p></div>`;
   }
 };
 
 /* ---------- نموذج الإضافة ---------- */
-async function openForm(k) {
-  const d = T[k]; let html = `<h2>${d.add}</h2>`;
+async function openForm(k, row) {
+  const d = T[k]; let html = `<h2>${row ? 'تعديل السجل' : d.add}</h2>`;
   for (const [n,l,type,req] of d.form) {
     let inp;
     if (Array.isArray(type)) inp = `<select name="${n}">${type.map(([v,t])=>`<option value="${v}">${t}</option>`).join('')}</select>`;
@@ -254,20 +265,32 @@ async function openForm(k) {
     html += `<label>${l}${inp}</label>`;
   }
   $('#dlgForm').innerHTML = html + `<div class="head"><button class="btn primary" value="ok">حفظ</button><button class="btn ghost" value="cancel" formnovalidate>إلغاء</button></div>`;
-  $('#dlgForm').dataset.k = k; $('#dlg').showModal();
+  const f = $('#dlgForm'); f.dataset.k = k; f.dataset.id = row ? row.id : '';
+  if (row) d.form.forEach(([n]) => { if (f.elements[n]) f.elements[n].value = row[n] ?? ''; });
+  $('#dlg').showModal();
+}
+function openPw() {
+  const f = $('#dlgForm');
+  f.innerHTML = '<h2>كلمة مرور جديدة</h2><label>كلمة المرور (8 أحرف على الأقل)<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><div class="head"><button class="btn primary" value="ok">حفظ</button><button class="btn ghost" value="cancel" formnovalidate>إلغاء</button></div>';
+  f.dataset.k = '__pw'; f.dataset.id = ''; $('#dlg').showModal();
 }
 $('#dlgForm').addEventListener('submit', async e => {
   if (e.submitter?.value !== 'ok') return;
   const k = e.target.dataset.k; const row = {};
   new FormData(e.target).forEach((v,n) => row[n] = v === '' ? null : v);
-  const { error } = await sb.from(k).insert(row);
+  if (k === '__pw') { const r = await sb.auth.updateUser({ password: row.password }); return toast(r.error ? r.error.message : 'تم تغيير كلمة المرور'); }
+  const id = e.target.dataset.id;
+  const { error } = id ? await sb.from(k).update(row).eq('id', id) : await sb.from(k).insert(row);
   toast(error ? 'تعذّر الحفظ: ' + error.message : 'تم الحفظ'); if (!error) go();
 });
 
 /* ---------- الأحداث العامة ---------- */
 document.addEventListener('click', async e => {
-  const b = e.target.closest('[data-add],[data-act],[data-appr],#testConn'); if (!b) return;
+  const b = e.target.closest('[data-add],[data-act],[data-appr],[data-edit],[data-del],#chgPw,#testConn'); if (!b) return;
   if (b.dataset.add) openForm(b.dataset.add);
+  else if (b.dataset.edit) openForm(b.dataset.edit, (CACHE[b.dataset.edit] || []).find(r => r.id === b.dataset.id));
+  else if (b.dataset.del) { if (confirm('حذف هذا السجل نهائيًا؟ قد تُحذف عناصر مرتبطة به.')) { const r = await sb.from(b.dataset.del).delete().eq('id', b.dataset.id); toast(r.error ? r.error.message : 'تم الحذف'); go(); } }
+  else if (b.id === 'chgPw') openPw();
   else if (b.dataset.act === 'logout') { if (DEMO) location.reload(); else await sb.auth.signOut(); }
   else if (b.dataset.appr) {
     const { error } = await sb.from('approvals').update({ status:b.dataset.appr, decided_by:user.id, decided_at:new Date().toISOString() }).eq('id', b.dataset.id);
@@ -312,7 +335,7 @@ function mockSb() {
     let f = [], op = 'sel', pay = null, one = false, head = false, ord = null, lim = null;
     const q = {
       select(_c, o) { if (op === 'sel') head = !!o?.head; return q; },
-      insert(p) { op = 'ins'; pay = p; return q; }, update(p) { op = 'upd'; pay = p; return q; },
+      insert(p) { op = 'ins'; pay = p; return q; }, delete() { op = 'del'; return q; }, update(p) { op = 'upd'; pay = p; return q; },
       eq(c, v) { f.push(r => r[c] === v); return q; }, neq(c, v) { f.push(r => r[c] !== v); return q; },
       order(c, o) { ord = [c, o?.ascending !== false]; return q; }, limit(x) { lim = x; return q; },
       single() { one = true; return q; }, maybeSingle() { one = true; return q; },
@@ -321,6 +344,7 @@ function mockSb() {
         if (op === 'ins') {
           const rows = [].concat(pay).map(r => ({ id:'m'+n++, created_at:new Date().toISOString(), ...(t==='conversations'?{owner_id:'demo'}:{}), ...r }));
           db[t].push(...rows); out = { data: one ? rows[0] : rows, error: null };
+        } else if (op === 'del') { db[t] = db[t].filter(r => !f.every(x => x(r))); out = { data:null, error:null };
         } else if (op === 'upd') {
           db[t].filter(r => f.every(x => x(r))).forEach(r => Object.assign(r, pay)); out = { data: null, error: null };
         } else {
